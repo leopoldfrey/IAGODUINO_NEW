@@ -1,5 +1,5 @@
 
-/*
+
   // ----------------------------------
   // MOTOR HEADER
 
@@ -21,7 +21,7 @@
 
   #define MAX_SPEED 20000
   #define ACCELERATION 6000
-  #define MAX_TRAVEL 6100*/
+  #define MAX_TRAVEL 6100
 
 // ----------------------------------
 // BUTTON HEADER
@@ -62,9 +62,9 @@ void setup() {
   Serial.begin (115200);
   delay(1000);
 
-  /*
+  
     // MOTOR SETUP
-    Serial.begin(9600);
+    //Serial.begin(9600);
 
     pinMode(ENABLE, OUTPUT);
     digitalWrite(ENABLE, LOW);
@@ -95,7 +95,7 @@ void setup() {
 
     Serial.println("ready");
 
-    stepperX.moveTo(MAX_TRAVEL);*/
+    stepperX.moveTo(MAX_TRAVEL);
 }
 
 // ----------------------------------
@@ -128,7 +128,7 @@ void loop() {
     val = "";
   }
 
-  /*
+  
     // MOTOR LOOP
 
     while (stepperX.distanceToGo() != 0) {
@@ -150,7 +150,7 @@ void loop() {
     } else {
     stepperX.moveTo(MAX_TRAVEL);
     }
-      delay(100);
+      //delay(100);
       //*/
 }
 
