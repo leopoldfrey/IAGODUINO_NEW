@@ -1,27 +1,27 @@
 
 
-  // ----------------------------------
-  // MOTOR HEADER
+// ----------------------------------
+// MOTOR HEADER
 
-  //Reference for AccelStepper library:
-  //http://www.airspayce.com/mikem/arduino/AccelStepper/classAccelStepper.html
-  #include <AccelStepper.h>
+//Reference for AccelStepper library:
+//http://www.airspayce.com/mikem/arduino/AccelStepper/classAccelStepper.html
+#include <AccelStepper.h>
 
-  // GRBL shield pinouts
-  #define STEP_X 2
-  #define STEP_Y 3
-  #define DIR_X 5
-  #define DIR_Y 6
-  #define LIMIT_X 9
-  #define LIMIT_Y 10
-  #define ENABLE 8
+// GRBL shield pinouts
+#define STEP_X 2
+#define STEP_Y 3
+#define DIR_X 5
+#define DIR_Y 6
+#define LIMIT_X 9
+#define LIMIT_Y 10
+#define ENABLE 8
 
-  AccelStepper stepperX(AccelStepper::DRIVER, STEP_X, DIR_X);
-  AccelStepper stepperY(AccelStepper::DRIVER, STEP_Y, DIR_Y);
+AccelStepper stepperX(AccelStepper::DRIVER, STEP_X, DIR_X);
+AccelStepper stepperY(AccelStepper::DRIVER, STEP_Y, DIR_Y);
 
-  #define MAX_SPEED 20000
-  #define ACCELERATION 6000
-  #define MAX_TRAVEL 6100
+#define MAX_SPEED 20000
+#define ACCELERATION 6000
+#define MAX_TRAVEL 6100
 
 // ----------------------------------
 // BUTTON HEADER
@@ -46,112 +46,139 @@ boolean valComplete = false;
 String val = "";
 int count = 0;
 int prevBut = LOW;
+boolean up = true;
+  int c = 0;
 
 // ----------------------------------
 // SETUP
 
 void setup() {
-  // BUTTON SETUP
-  pinMode(ledPin, OUTPUT);      // declare LED as output
-  pinMode(inputPin, INPUT);     // declare pushbutton as input
-
+  /*
+    // BUTTON SETUP
+    pinMode(ledPin, OUTPUT);      // declare LED as output
+    pinMode(inputPin, INPUT);     // declare pushbutton as input
+    //*/
   // LED SETUP
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
 
   // SERIAL SETUP
-  Serial.begin (115200);
-  delay(1000);
+  Serial.begin (9600);
 
-  
-    // MOTOR SETUP
-    //Serial.begin(9600);
 
-    pinMode(ENABLE, OUTPUT);
-    digitalWrite(ENABLE, LOW);
+  // MOTOR SETUP
+  //Serial.begin(9600);
 
-    pinMode(LIMIT_X, INPUT_PULLUP);
-    pinMode(LIMIT_Y, INPUT_PULLUP);
+  pinMode(ENABLE, OUTPUT);
+  digitalWrite(ENABLE, LOW);
 
-    stepperX.setMaxSpeed(MAX_SPEED);
-    stepperX.setAcceleration(ACCELERATION);
-    stepperY.setMaxSpeed(MAX_SPEED);
-    stepperY.setAcceleration(ACCELERATION);
-    stepperX.setPinsInverted(1, 0, 0);
-    stepperY.setPinsInverted(1, 0, 0);
+  pinMode(LIMIT_X, INPUT_PULLUP);
+  pinMode(LIMIT_Y, INPUT_PULLUP);
 
-    Serial.println("homing...");
+  stepperX.setMaxSpeed(MAX_SPEED);
+  stepperX.setAcceleration(ACCELERATION);
+  stepperY.setMaxSpeed(MAX_SPEED);
+  stepperY.setAcceleration(ACCELERATION);
+  stepperX.setPinsInverted(1, 0, 0);
+  stepperY.setPinsInverted(1, 0, 0);
 
-    // homing
-    while (digitalRead(LIMIT_X) > 0) {
+  Serial.println("homing...");
+
+  // homing
+  while (digitalRead(LIMIT_X) > 0) {
     stepperX.move(-750);
     stepperX.run();
-    }
-    while (digitalRead(LIMIT_Y) > 0) {
+  }
+  while (digitalRead(LIMIT_Y) > 0) {
     stepperY.move(-750);
     stepperY.run();
-    }
-    stepperX.setCurrentPosition(0);
-    stepperY.setCurrentPosition(0);
+  }
+  stepperX.setCurrentPosition(0);
+  stepperY.setCurrentPosition(0);
 
-    Serial.println("ready");
+  Serial.println("ready");
 
-    stepperX.moveTo(MAX_TRAVEL);
+  //stepperX.moveTo(MAX_TRAVEL);
+  delay(1000);//*/
+
 }
 
 // ----------------------------------
 // LOOP
 
 void loop() {
+  /*
+    // BUTTON LOOP
 
-  // BUTTON LOOP
+    int val = digitalRead(inputPin);  // read input value
+    if (prevBut != val)
+    {
+      printBut(val);
+      prevBut = val;
+    }
 
-  int val = digitalRead(inputPin);  // read input value
-  if (prevBut != val)
-  {
-    printBut(val);
-    prevBut = val;
-  }
-
-  if (val == HIGH) {            // check if the input is HIGH
-    digitalWrite(ledPin, LOW);  // turn LED OFF
-  } else {
-    digitalWrite(ledPin, HIGH); // turn LED ON
-  }
-
+    if (val == HIGH) {            // check if the input is HIGH
+      digitalWrite(ledPin, LOW);  // turn LED OFF
+    } else {
+      digitalWrite(ledPin, HIGH); // turn LED ON
+    }
+    //*/
   // LED LOOP
-
+/*
   if (valComplete == true)
   {
     printLeds();
     FastLED.show();
     valComplete = false;
     val = "";
+  }//*/
+
+
+  // MOTOR LOOP
+
+
+  while (stepperX.distanceToGo() != 0 || stepperY.distanceToGo() != 0) {
+    stepperX.run();
+    stepperY.run();
+    for (int i = 0 ; i < NUM_LEDS ; i++)
+    {
+      leds[i].setRGB(c, c, c);
+    }
+    if (up)
+      c++;
+    else
+      c--;
+
   }
 
+    if (c > 255)
+    {
+      up = false;
+    }
+    else if (c < 0)
+    {
+      up = true;
+      
+    }
+    FastLED.show();
   
-    // MOTOR LOOP
-
-    while (stepperX.distanceToGo() != 0) {
-    stepperX.run();
-    }
-
-    if (stepperY.currentPosition() > 0) {
-    stepperY.moveTo(0);
-    } else {
-    stepperY.moveTo(MAX_TRAVEL);
-    }
-
+  /*
     while (stepperY.distanceToGo() != 0) {
-    stepperY.run();
-    }
+    }*/
 
-    if (stepperX.currentPosition() > 0) {
+  if (stepperY.currentPosition() > 0) {
+    stepperY.moveTo(0);
+  } else {
+    stepperY.moveTo(MAX_TRAVEL);
+  }
+
+
+  if (stepperX.currentPosition() > 0) {
     stepperX.moveTo(0);
-    } else {
+  } else {
     stepperX.moveTo(MAX_TRAVEL);
-    }
-      //delay(100);
-      //*/
+  }
+  //delay(0);
+  //*/
 }
 
 // ----------------------------------
